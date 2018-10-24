@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request, redirect
+from flask import jsonify, url_for, flash
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
@@ -33,7 +34,8 @@ session = DBSession()
 @app.route('/login')
 def showLogin():
     state = ''.join(
-        random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+        random.choice(string.ascii_uppercase + string.digits)
+        for x in range(32))
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
@@ -95,8 +97,7 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('Already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -188,7 +189,6 @@ def logout():
     response = make_response(json.dumps('Successfully logged out.'), 200)
     response.headers['Content-Type'] = 'application/json'
     # return response
-    # return "<script>function myFunction() {alert('You have logged out');}</script><body onload='myFunction()''>"
     return render_template('loggedout.html')
 
 # Routes - map URLs
@@ -216,10 +216,10 @@ def categoriesJSON():
 
 @app.route('/item/<int:item_id>/JSON')
 def itemJSON(item_id):
-    #cat = session.query(Item).filter_by(id=item_id).one()
     item = session.query(Item).filter_by(id=item_id).one()
     owner = getUserInfo(item.user_id)
-    return jsonify(category=item.category.name, item=item.name, item_description=item.description, owner=owner.name)
+    return jsonify(category=item.category.name, item=item.name,
+                   item_description=item.description, owner=owner.name)
 
 # Home: show categories and new items
 
@@ -228,7 +228,8 @@ def itemJSON(item_id):
 def home():
     newItems = session.query(Item).order_by(Item.id.desc()).limit(15)
     categories = session.query(Category).order_by(asc(Category.name))
-    return render_template('home.html', newItems=newItems, categories=categories)
+    return render_template('home.html',
+                           newItems=newItems, categories=categories)
 
 # Show a category
 
@@ -240,9 +241,11 @@ def showCategory(category_id):
     items = session.query(Item).filter_by(
         category_id=category_id).all()
     if 'username' not in login_session or owner.id != login_session['user_id']:
-        return render_template('publiccategory.html', items=items, category=category, owner=owner)
+        return render_template('publiccategory.html',
+                               items=items, category=category, owner=owner)
     else:
-        return render_template('privatecategory.html', items=items, category=category, owner=owner)
+        return render_template('privatecategory.html',
+                               items=items, category=category, owner=owner)
 
 # Create a new category
 
@@ -271,7 +274,7 @@ def editCategory(category_id):
     if 'username' not in login_session:
         return redirect('/login')
     if editedCategory.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('Create your own category if you want to edit it!');window.history.back();}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Create your own category if you want to edit it!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if request.method == 'POST':
         if request.form['name']:
             editedCategory.name = request.form['name']
@@ -294,9 +297,9 @@ def deleteCategory(category_id):
     if 'username' not in login_session:
         return redirect('/login')
     if categoryToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('Create your own category if you want to delete a category!');window.history.back();}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Create your own category if you want to delete a category!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if itemsInCategory != []:
-        flash('You must delete all items in this category before you delete it!')
+        flash('Please delete all items in this category before deleting it!')
         return redirect(url_for('showCategory', category_id=category_id))
     if request.method == 'POST':
         session.delete(categoryToDelete)
@@ -304,7 +307,8 @@ def deleteCategory(category_id):
         session.commit()
         return redirect(url_for('home', category_id=category_id))
     else:
-        return render_template('deleteCategory.html', category=categoryToDelete)
+        return render_template('deleteCategory.html',
+                               category=categoryToDelete)
 
 # Create a new item
 
@@ -315,7 +319,7 @@ def newItem(category_id):
         return redirect('/login')
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:
-        return "<script>function myFunction() {alert('Create you own category if you want to add items!');window.history.back();}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Create you own category if you want to add items!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'],
@@ -342,14 +346,15 @@ def showItem(item_id):
 # Edit an item
 
 
-@app.route('/item/<int:category_id>/<int:item_id>/edit', methods=['GET', 'POST'])
+@app.route('/item/<int:category_id>/<int:item_id>/edit',
+           methods=['GET', 'POST'])
 def editItem(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
     editedItem = session.query(Item).filter_by(id=item_id).one()
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:
-        return "<script>function myFunction() {alert('Create your own category and items if you want to edit them!');window.history.back();}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Create your own category and items if you want to edit them!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -360,26 +365,29 @@ def editItem(category_id, item_id):
         flash('Item Successfully Edited')
         return redirect(url_for('showCategory', category_id=category_id))
     else:
-        return render_template('editItem.html', category_id=category_id, item=editedItem)
+        return render_template('editItem.html',
+                               category_id=category_id, item=editedItem)
 
 # Delete an item
 
 
-@app.route('/item/<int:category_id>/<int:item_id>/delete', methods=['GET', 'POST'])
+@app.route('/item/<int:category_id>/<int:item_id>/delete',
+           methods=['GET', 'POST'])
 def deleteItem(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:
-        return "<script>function myFunction() {alert('Create your own category and items if you want to delete them!');window.history.back();}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Create your own category and items if you want to delete them!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
         flash('Item Successfully Deleted')
         return redirect(url_for('showCategory', category_id=category_id))
     else:
-        return render_template('deleteItem.html', category_id=category_id, item=itemToDelete)
+        return render_template('deleteItem.html',
+                               category_id=category_id, item=itemToDelete)
 
 
 if __name__ == '__main__':
