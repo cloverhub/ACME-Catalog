@@ -41,7 +41,6 @@
 		<div class="scroll">
 		{% if newItems !=[] %}
 			{% for i in newItems %}
-				<!---<a href="{{url_for('showItem', item_id=i.id)}}">{{i.name}}</a>--->
 				<p><span class="fas fa-lightbulb"></span><a href="{{url_for('showItem', item_id=i.id)}}">{{i.name}}</a></p>
 			{% endfor %}
 		{% endif %}
