@@ -1,0 +1,70 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="row">
+	<div class="col-md-8">
+		<h1>{{ category.name }}</h1>
+	</div>
+	<div class="col-md-4 owner">
+		<img src="{{ owner.picture }}">
+		<p>Category Owner: YOU!</p>
+	</div>
+</div>
+<div class = 'flash'>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+		<ul>
+		{% for message in messages %}
+			<li> {{ message }}  </li>
+		{% endfor %}
+		</ul>
+		{% endif %}
+	{% endwith %}
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<a href="{{url_for('newItem', category_id = category.id )}}">
+			<button class="btn btn-default" id="new-item">
+				<span class="fas fa-plus" aria-hidden="true"></span>Add Item To Category
+			</button>
+		</a>
+		<a href="{{url_for('editCategory', category_id = category.id )}}">
+			<button class="btn btn-default" id="new-item">
+				<span class="fas fa-edit" aria-hidden="true"></span>Edit {{ category.name }} Category
+			</button>
+		</a>
+		<a href="{{url_for('deleteCategory', category_id = category.id )}}">
+			<button class="btn btn-default delete" id="delete-category">
+				<span class="fas fa-trash" aria-hidden="true"></span>Delete {{ category.name }} Category
+			</button>
+		</a>
+	</div>
+</div>
+{% if items !=[] %}	
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Items</h2>
+			{% for i in items %}
+			<div class="item-detail">
+				<h3>{{i.name}}</h3>
+				<p>{{i.description}}</p>
+				<a href='{{url_for('editItem', category_id = category.id, item_id=i.id ) }}'>
+					<button class="btn btn-default edit">
+					<span class="fas fa-edit"></span> Edit Item</button>
+				</a>
+				<a href='{{url_for('deleteItem', category_id = category.id, item_id=i.id ) }}'>
+					<button class="btn btn-default delete">
+					<span class="fas fa-trash"></span> Delete Item</button>
+				</a>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="col-md-12">
+		<a href = '{{url_for('home')}}'>
+			<button type="button" class="btn btn-default">
+			<span class="fas fa-arrow-circle-left" aria-hidden="true"></span>Back</button>
+		</a>
+	</div>
+{% endif %}
+{% endblock %}

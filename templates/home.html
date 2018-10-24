@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class = 'flash'>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul>
+			{% for message in messages %}
+				<li> {{ message }} </li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+</div>
+<div class="row">
+	<div class="col-md-5">
+		<h2>Choose a Category:</h2>
+		{% for category in categories %}
+		<div class="row">
+			<div class="col-md-12 listbox border">
+				<a href = "{{url_for('showCategory', category_id = category.id)}}">
+					<div class="row">
+						<div class="col-md-12">
+							<h3>{{category.name}}</h3>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+		{% endfor %}
+		<a href="{{url_for('newCategory')}}">
+			<button class="btn btn-default" id="new-category">
+				<i class="fas fa-folder-plus"></i> Add A New Category
+			</button>
+		</a>
+	</div>
+	<div class="col-md-3">
+	</div>
+	<div class="col-md-4 heightlimit portlet">
+		<div class="boxtitle"></div>
+		<div class="scroll">
+		{% if newItems !=[] %}
+			{% for i in newItems %}
+				<!---<a href="{{url_for('showItem', item_id=i.id)}}">{{i.name}}</a>--->
+				<p><span class="fas fa-lightbulb"></span><a href="{{url_for('showItem', item_id=i.id)}}">{{i.name}}</a></p>
+			{% endfor %}
+		{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

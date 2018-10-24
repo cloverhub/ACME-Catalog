@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="row">
+	<div class="col-md-12">
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+					{% for message in messages %}
+						 <li>{{ message }}</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<h2>Item Detail for {{item.name}}</h2>
+	</div>
+</div>
+<div class="item-detail">
+	<div class="row">
+		<div class="col-md-6">
+			<h3>Item Name:</h3>
+			<p>{{item.name}}</p>
+			<h3>Item Description:</h3>
+			<p>{{item.description}}</p>
+			<h3>Category:</h3>
+			<p>{{item.category.name}}
+		</div>
+		<div class="col-md-4">
+			<h3>Item Owner:</h3>
+			<p>{{owner.name}}</p>
+		</div>
+		<div class="col-md-2">
+			<div class="owner">
+				<img src="{{ owner.picture }}">
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<a href = '{{url_for('showCategory',category_id=item.category.id)}}'>
+			<button type="button" class="btn btn-default">
+			<span class="fas fa-arrow-circle-left" aria-hidden="true"></span>Go to {{item.category.name}} Category</button>
+		</a>
+	</div>
+</div>
+{% endblock %}

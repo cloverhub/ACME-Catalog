@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="row menu">
+	<div class="col-md-12">
+		<a href="{{url_for('home')}}">
+			<span class="fas fa-home"></span>Home
+		</a>
+		{% if userLoggedIn() %}
+			<a class="menu-right" href="{{url_for('logout')}}">
+				<span class="fas fa-sign-out-alt"></span>Log out
+			</a>
+		{% else %}
+			<a class="menu-right" href="{{url_for('showLogin')}}">
+				<span class="fas fa-user"></span>Log in
+			</a>
+		{% endif %}
+	</div>
+</div>
+<div class="row motto">
+	<div class="col-md-12">
+		<h2><span class="fas fa-atom"></span> WHERE QUALITY IS #1 <span class="fas fa-atom"></span></h2>
+	</div>
+</div>
+<a href="{{url_for('home')}}">
+	<div class="row logo">
+	</div>
+</a>
+{% endblock %}

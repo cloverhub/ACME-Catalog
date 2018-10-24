@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="row">
+	<div class="col-md-8">
+		<h1>{{ category.name }}</h1>
+	</div>
+	<div class="col-md-4 owner">
+		<img src="{{ owner.picture }}">
+		<p>Category Owner: {{ owner.name }}</p>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+					{% for message in messages %}
+						 <li>{{ message }}</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+	</div>
+</div>
+{% if items !=[] %}	
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Items</h2>
+			{% for i in items %}
+				<a href="{{url_for('showItem', item_id=i.id)}}">
+					<div class="item-detail">
+						<h3>{{i.name}}</h3>
+						<p>{{i.description}}</p>
+					</div>
+				</a>
+			{% endfor %}
+		</div>
+		<div class="col-md-12">
+			<a href = '{{url_for('home')}}'>
+				<button type="button" class="btn btn-default">
+				<span class="fas fa-arrow-circle-left" aria-hidden="true"></span>Back</button>
+			</a>
+		</div>
+	</div>
+{% endif %}
+{% endblock %}

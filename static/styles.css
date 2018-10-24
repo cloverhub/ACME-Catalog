@@ -1,0 +1,148 @@
+* {
+	font-family: Acme, Helvetica, Arial, sans-serif;
+	font-weight: 700;
+}
+h1 {
+	font-family: Stardos Stencil, Helvetica, Arial, sans-serif;
+	font-size: 50px;
+	text-transform: uppercase;
+	color: #51453B;
+	font-weight: 300;
+}
+h2 {
+	font-size: 36px;
+}
+h3 {
+	border-color: #183446;
+	border-width: 1px;
+	color: #DA0000;
+	font-size: 28px;
+	margin: 10px 0px;
+}
+p {
+	font-size: 18px;
+	color: #7B7573;
+	line-height: 24px;
+	font-weight: 400;
+}
+a {
+	color: #7B7573;
+}
+a:hover {
+	color: #DA0000 !important;
+	text-decoration: none;
+}
+body {
+	background: url("/static/background.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+	margin-bottom: 10%;
+	background-color: #BBB18A; 
+}
+.fas {
+	padding-right: 5px;
+}
+.margin-right {
+	margin-right: 30px;
+}
+.btn {
+	padding: 15px;
+	margin: 20px 0px;
+	border-color: #51453B;
+	border-width: 1px;
+	color: White;
+	background-color: #BBB18A;
+}
+.btn:hover {
+	padding: 13px;
+	border-width: 3px;
+}
+.btn.delete:hover {
+	background-color: #DA0000;
+}
+.menu {
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+.menu a {
+	margin-bottom: 0;
+	line-height: 16px;
+	font-size: 24px;
+	color: #183446;
+	font-weight: 700;
+}
+.menu-right {
+	float: right;
+}
+.motto h2 {
+	font-family: Stardos Stencil, Helvetica, Arial, sans-serif;
+	text-align: center;
+	font-size: 18px;
+	color: #183446;
+	margin-top: -30px;
+}
+.logo {
+	height: 150px;
+	background: url("/static/acme_logo.png");
+	background-size: 100% auto;
+	background-repeat: no-repeat;
+	margin: -10px 0px 20px;
+}
+.portlet {
+	border-width: 2px;
+	border-radius: 20px;
+	border-color: #DA0000 !important;
+	background-color: #FFFF7B;
+	margin-top: 50px
+}
+.scroll {
+	max-height: 480px;
+	overflow: scroll;
+}
+.listbox {
+	border-radius: 5px;
+	border-color: #DA0000 !important;
+	background-color: #FFFF7B; /*was #FAFAD2*/
+	margin: 10px;
+}
+.heightlimit {
+	max-height: 600px;
+}
+.listbox:hover {
+	background-color: #51453B;
+}
+.boxtitle {
+	height: 100px;
+	background: url("/static/new.png");
+	background-size: auto;
+	background-repeat: no-repeat;
+}
+.item-detail {
+	background: #FFFF7B;
+	padding: 22px;
+	margin-top: 20px;
+}
+.owner {
+	padding-right: 20px;
+	margin-top: -20px;
+	text-align: right;
+	float:right;
+}
+.owner img {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	background-color: #FFFF7B;
+}
+.flash {
+	background-color: #FFFF7B;
+	color: #DA0000;
+	width: 100%;
+	font-size: 20px;
+	line-height: 30px;
+	text-decoration: none;
+}
+.flash li {
+	list-style-type: none;
+	text-align: center;
+}
