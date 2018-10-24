@@ -21,12 +21,15 @@ APPLICATION_NAME = "The Acme Catalog"
 
 # Connect to Database and create database session
 # Set thread check to false to eliminate SQLite thread errors
-engine = create_engine('sqlite:///catalog.db', connect_args={'check_same_thread': False})
+engine = create_engine('sqlite:///catalog.db',
+                       connect_args={'check_same_thread': False})
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # Create anti-forgery state token
+
+
 @app.route('/login')
 def showLogin():
     state = ''.join(
@@ -34,6 +37,7 @@ def showLogin():
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -125,20 +129,24 @@ def gconnect():
     return output
 
 # User Helper Functions
+
+
 def createUser(login_session):
     newUser = User(
-              name=login_session['username'],
-              email=login_session['email'],
-              picture=login_session['picture']
-              )
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture']
+    )
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
+
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 def getUserID(email):
     try:
@@ -147,15 +155,19 @@ def getUserID(email):
     except:
         return None
 
+
 def userLoggedIn():
     if 'email' in login_session:
         return True
     else:
         return False
 
+
 app.jinja_env.globals['userLoggedIn'] = userLoggedIn
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
+
+
 @app.route('/logout')
 def logout():
     # Disconnect user
@@ -175,13 +187,15 @@ def logout():
     del login_session['picture']
     response = make_response(json.dumps('Successfully logged out.'), 200)
     response.headers['Content-Type'] = 'application/json'
-    #return response
-    #return "<script>function myFunction() {alert('You have logged out');}</script><body onload='myFunction()''>"
+    # return response
+    # return "<script>function myFunction() {alert('You have logged out');}</script><body onload='myFunction()''>"
     return render_template('loggedout.html')
-    
+
 # Routes - map URLs
 
 # JSON API to retrieve items for a given category id
+
+
 @app.route('/category/<int:category_id>/JSON')
 def categoryJSON(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
@@ -190,12 +204,16 @@ def categoryJSON(category_id):
     return jsonify(Items=[i.serialize for i in items])
 
 # JSON API to retrieve all categories
+
+
 @app.route('/category/JSON')
 def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(categories=[r.serialize for r in categories])
 
 # JSON API to retrieve item details for a given item id
+
+
 @app.route('/item/<int:item_id>/JSON')
 def itemJSON(item_id):
     #cat = session.query(Item).filter_by(id=item_id).one()
@@ -204,6 +222,8 @@ def itemJSON(item_id):
     return jsonify(category=item.category.name, item=item.name, item_description=item.description, owner=owner.name)
 
 # Home: show categories and new items
+
+
 @app.route('/')
 def home():
     newItems = session.query(Item).order_by(Item.id.desc()).limit(15)
@@ -211,6 +231,8 @@ def home():
     return render_template('home.html', newItems=newItems, categories=categories)
 
 # Show a category
+
+
 @app.route('/category/<int:category_id>/')
 def showCategory(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
@@ -223,6 +245,8 @@ def showCategory(category_id):
         return render_template('privatecategory.html', items=items, category=category, owner=owner)
 
 # Create a new category
+
+
 @app.route('/category/new/', methods=['GET', 'POST'])
 def newCategory():
     if 'username' not in login_session:
@@ -238,6 +262,8 @@ def newCategory():
         return render_template('newCategory.html')
 
 # Edit a category
+
+
 @app.route('/category/<int:category_id>/edit/', methods=['GET', 'POST'])
 def editCategory(category_id):
     editedCategory = session.query(
@@ -256,6 +282,8 @@ def editCategory(category_id):
         return render_template('editCategory.html', category=editedCategory)
 
 # Delete a category
+
+
 @app.route('/category/<int:category_id>/delete/', methods=['GET', 'POST'])
 def deleteCategory(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
@@ -267,7 +295,7 @@ def deleteCategory(category_id):
         return redirect('/login')
     if categoryToDelete.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('Create your own category if you want to delete a category!');window.history.back();}</script><body onload='myFunction()''>"
-    if itemsInCategory !=[]:
+    if itemsInCategory != []:
         flash('You must delete all items in this category before you delete it!')
         return redirect(url_for('showCategory', category_id=category_id))
     if request.method == 'POST':
@@ -279,6 +307,8 @@ def deleteCategory(category_id):
         return render_template('deleteCategory.html', category=categoryToDelete)
 
 # Create a new item
+
+
 @app.route('/item/<int:category_id>/new/', methods=['GET', 'POST'])
 def newItem(category_id):
     if 'username' not in login_session:
@@ -288,11 +318,11 @@ def newItem(category_id):
         return "<script>function myFunction() {alert('Create you own category if you want to add items!');window.history.back();}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         newItem = Item(
-                       name=request.form['name'],
-                       description=request.form['description'],
-                       category_id=category_id,
-                       user_id=category.user_id
-                       )
+            name=request.form['name'],
+            description=request.form['description'],
+            category_id=category_id,
+            user_id=category.user_id
+        )
         session.add(newItem)
         session.commit()
         flash('New %s Item Successfully Created' % (newItem.name))
@@ -301,6 +331,8 @@ def newItem(category_id):
         return render_template('newitem.html', category_id=category_id)
 
 # Show item detail
+
+
 @app.route('/item/<int:item_id>/')
 def showItem(item_id):
     item = session.query(Item).filter_by(id=item_id).one()
@@ -308,6 +340,8 @@ def showItem(item_id):
     return render_template('item.html', item=item, owner=owner)
 
 # Edit an item
+
+
 @app.route('/item/<int:category_id>/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(category_id, item_id):
     if 'username' not in login_session:
@@ -329,6 +363,8 @@ def editItem(category_id, item_id):
         return render_template('editItem.html', category_id=category_id, item=editedItem)
 
 # Delete an item
+
+
 @app.route('/item/<int:category_id>/<int:item_id>/delete', methods=['GET', 'POST'])
 def deleteItem(category_id, item_id):
     if 'username' not in login_session:
@@ -344,6 +380,7 @@ def deleteItem(category_id, item_id):
         return redirect(url_for('showCategory', category_id=category_id))
     else:
         return render_template('deleteItem.html', category_id=category_id, item=itemToDelete)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
