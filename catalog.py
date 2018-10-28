@@ -1,5 +1,10 @@
-from flask import Flask, render_template, request, redirect
-from flask import jsonify, url_for, flash
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   jsonify,
+                   url_for,
+                   flash)
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
@@ -12,6 +17,7 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from functools import wraps
 
 debug = False
 app = Flask(__name__)
@@ -37,8 +43,9 @@ def showLogin():
         random.choice(string.ascii_uppercase + string.digits)
         for x in range(32))
     login_session['state'] = state
+    CLIENT_ID = "131604815216-8pkcf5v2i7qu8qnos8g8sumvhgtket2u.apps.googleusercontent.com"  # noqa
     # return "The current session state is %s" % login_session['state']
-    return render_template('login.html', STATE=state)
+    return render_template('login.html', STATE=state, CLIENT_ID=CLIENT_ID)
 
 
 @app.route('/gconnect', methods=['POST'])
@@ -164,6 +171,17 @@ def userLoggedIn():
         return False
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash('You cannot do that without logging in')
+            return redirect('/login')
+    return decorated_function
+
+
 app.jinja_env.globals['userLoggedIn'] = userLoggedIn
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
@@ -211,15 +229,18 @@ def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(categories=[r.serialize for r in categories])
 
-# JSON API to retrieve item details for a given item id
+
+# JSON API to retrieve item details for a given item id and given category id
 
 
-@app.route('/item/<int:item_id>/JSON')
-def itemJSON(item_id):
+@app.route('/<int:category_id>/<int:item_id>/JSON')
+def categoryItemJSON(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
+    category = session.query(Category).filter_by(id=category_id).one()
     owner = getUserInfo(item.user_id)
-    return jsonify(category=item.category.name, item=item.name,
+    return jsonify(category=category.name, item=item.name,
                    item_description=item.description, owner=owner.name)
+
 
 # Home: show categories and new items
 
@@ -251,9 +272,8 @@ def showCategory(category_id):
 
 
 @app.route('/category/new/', methods=['GET', 'POST'])
+@login_required
 def newCategory():
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
             name=request.form['name'], user_id=login_session['user_id'])
@@ -268,11 +288,10 @@ def newCategory():
 
 
 @app.route('/category/<int:category_id>/edit/', methods=['GET', 'POST'])
+@login_required
 def editCategory(category_id):
     editedCategory = session.query(
         Category).filter_by(id=category_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if editedCategory.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('Create your own category if you want to edit it!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if request.method == 'POST':
@@ -288,14 +307,13 @@ def editCategory(category_id):
 
 
 @app.route('/category/<int:category_id>/delete/', methods=['GET', 'POST'])
+@login_required
 def deleteCategory(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     categoryToDelete = session.query(
         Category).filter_by(id=category_id).one()
     itemsInCategory = session.query(Item).filter_by(
         category_id=category_id).all()
-    if 'username' not in login_session:
-        return redirect('/login')
     if categoryToDelete.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('Create your own category if you want to delete a category!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
     if itemsInCategory != []:
@@ -314,9 +332,8 @@ def deleteCategory(category_id):
 
 
 @app.route('/item/<int:category_id>/new/', methods=['GET', 'POST'])
+@login_required
 def newItem(category_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:
         return "<script>function myFunction() {alert('Create you own category if you want to add items!');window.history.back();}</script><body onload='myFunction()''>"  # noqa
@@ -348,9 +365,8 @@ def showItem(item_id):
 
 @app.route('/item/<int:category_id>/<int:item_id>/edit',
            methods=['GET', 'POST'])
+@login_required
 def editItem(category_id, item_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     editedItem = session.query(Item).filter_by(id=item_id).one()
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:
@@ -373,9 +389,8 @@ def editItem(category_id, item_id):
 
 @app.route('/item/<int:category_id>/<int:item_id>/delete',
            methods=['GET', 'POST'])
+@login_required
 def deleteItem(category_id, item_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     category = session.query(Category).filter_by(id=category_id).one()
     if login_session['user_id'] != category.user_id:

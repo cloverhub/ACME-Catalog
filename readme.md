@@ -31,7 +31,7 @@
 The application has three JSON endpoints that can be accessed at the following URLs:
 -  http://localhost:5000/category/JSON to retrieve all category IDs and names
 -  http://localhost:5000/category/[category_id]/JSON to retrieve all item data within a given category ID
--  http://localhost:5000/item/[item_id]/JSON to retrieve item details with a given item ID
+-  http://localhost:5000/[category_id]/[item_id]/JSON to retrieve item details with a given category ID and item ID
 
 where ```[category_id]``` is the category ID and ```[item_id]``` is the item ID
 
